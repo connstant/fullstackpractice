@@ -1,0 +1,469 @@
+<title>Fetch Skills Roadmap</title>
+<style>
+  :root {
+    --bg: #f5f6f9;
+    --surface: #ffffff;
+    --surface-2: #eef0f5;
+    --ink: #1a1e2b;
+    --ink-muted: #5b6273;
+    --ink-faint: #8b91a3;
+    --border: #dfe2ea;
+    --accent: #3454d1;
+    --accent-soft: #e7ebfb;
+    --accent-ink: #24399b;
+    --done-bg: #eaf3ec;
+    --done-ink: #2f7a4a;
+    --shadow: 0 1px 2px rgba(23, 27, 46, 0.04), 0 8px 24px rgba(23, 27, 46, 0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12151d;
+      --surface: #191d28;
+      --surface-2: #20242f;
+      --ink: #e9ebf3;
+      --ink-muted: #a2a8bb;
+      --ink-faint: #6d7284;
+      --border: #2c3140;
+      --accent: #7c93ff;
+      --accent-soft: #232a4a;
+      --accent-ink: #b7c3ff;
+      --done-bg: #1c2c22;
+      --done-ink: #6fcf90;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #12151d;
+    --surface: #191d28;
+    --surface-2: #20242f;
+    --ink: #e9ebf3;
+    --ink-muted: #a2a8bb;
+    --ink-faint: #6d7284;
+    --border: #2c3140;
+    --accent: #7c93ff;
+    --accent-soft: #232a4a;
+    --accent-ink: #b7c3ff;
+    --done-bg: #1c2c22;
+    --done-ink: #6fcf90;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", -apple-system, Segoe UI, sans-serif;
+    padding: 0 16px;
+    padding-block: 40px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .page {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(28px, 5vw, 36px);
+    margin: 0 0 6px;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+
+  .subtitle {
+    color: var(--ink-muted);
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .pill {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--ink-muted);
+    border: 1px solid var(--border);
+  }
+
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .progress-label {
+    font-size: 13px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .progress-count {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .bar-track {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .phase {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 20px 20px 8px;
+  }
+
+  .phase-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .phase-num {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .phase-title-wrap { flex: 1; min-width: 0; }
+
+  .phase-title {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: 19px;
+    margin: 2px 0 2px;
+  }
+
+  .phase-sub {
+    font-size: 13px;
+    color: var(--ink-muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .phase-count {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    padding-top: 6px;
+  }
+
+  ul.items {
+    list-style: none;
+    margin: 14px 0 4px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 4px;
+    border-top: 1px solid var(--border);
+  }
+
+  .item:first-child { border-top: none; }
+
+  .item input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border-radius: 5px;
+    border: 1.5px solid var(--ink-faint);
+    background: var(--surface);
+    margin-top: 2px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .item input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .item input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .item input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .item label {
+    font-size: 14.5px;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .item.checked label {
+    color: var(--ink-faint);
+    text-decoration: line-through;
+    text-decoration-color: var(--ink-faint);
+  }
+
+  .checkpoint {
+    margin: 12px 4px 16px;
+    padding: 10px 12px;
+    background: var(--done-bg);
+    color: var(--done-ink);
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--ink-faint);
+    font-size: 12px;
+    padding-bottom: 8px;
+  }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@500&display=swap">
+
+<div class="page">
+  <div>
+    <h1>Fetch Skills Roadmap</h1>
+    <p class="subtitle">Learning order for the link saver project — from raw <code>fetch()</code> to a full CRUD app with TanStack Query, tracking the frontend↔backend fetching skills from Stephen's interview feedback.</p>
+    <div class="meta-row">
+      <span class="pill">Project: Link Saver</span>
+      <span class="pill">Stack: FastAPI · Supabase · Vite/React/TS</span>
+    </div>
+  </div>
+
+  <div class="progress-card">
+    <div class="progress-top">
+      <span class="progress-label">Overall progress</span>
+      <span class="progress-count" id="overall-count">0 / 25</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="overall-bar"></div></div>
+  </div>
+
+  <div id="phases"></div>
+
+  <footer>Checked state is saved in this browser only.</footer>
+</div>
+
+<script>
+  const PHASES = [
+    {
+      title: "Setup",
+      sub: "Get the backend, database, and frontend running and talking to each other.",
+      items: [
+        "Create Supabase project, get Postgres connection string",
+        "Scaffold FastAPI backend (uvicorn, basic /health endpoint) — confirm it runs locally",
+        "Scaffold Vite + React + TypeScript frontend — confirm it renders “hello world”",
+        "Run both at once, hit /health from the browser directly (not from React yet)"
+      ]
+    },
+    {
+      title: "Backend first, no frontend involved",
+      sub: "Build and prove out the API on its own before React ever touches it.",
+      items: [
+        "Design the links table (id, url, note, tags, created_at, is_read)",
+        "Wire FastAPI to Postgres (SQLAlchemy or asyncpg) — connect to Supabase",
+        "Build CRUD endpoints one at a time: POST /links, GET /links, GET /links/{id}, PATCH /links/{id}, DELETE /links/{id}",
+        "Test every endpoint via /docs or curl/Postman — before any frontend code touches it"
+      ]
+    },
+    {
+      title: "Frontend talks to backend, the raw way",
+      sub: "Every request type by hand with plain fetch() — this is the core gap from Stephen's feedback.",
+      items: [
+        "Hit GET /links from React using plain fetch() inside useEffect, log the result",
+        "Render the fetched list in the UI",
+        "Add explicit loading state while the fetch is in flight",
+        "Add explicit error state (fetch throws, or response is non-2xx)",
+        "Add “create link” form: fetch() POST with JSON body + headers, then update the list",
+        "Add delete (fetch DELETE) and mark-as-read (fetch PATCH) — same pattern, different verbs",
+        "Deal with CORS once it breaks — understand why, not just paste a fix"
+      ],
+      checkpoint: "Checkpoint: full CRUD working with raw fetch across GET/POST/PATCH/DELETE. Don't move to Phase 3 until this is solid."
+    },
+    {
+      title: "Compare against a fetching library",
+      sub: "Swap in TanStack Query and feel the difference against Phase 2.",
+      items: [
+        "Install TanStack Query",
+        "Refactor the GET /links list to useQuery instead of manual useEffect/fetch",
+        "Refactor create/delete/patch to useMutation, with cache invalidation on success",
+        "Write a short note on what raw fetch made you handle manually vs. the library"
+      ]
+    },
+    {
+      title: "Round out the app",
+      sub: "New fetching patterns beyond a single initial load.",
+      items: [
+        "Add query-param filtering (GET /links?tag=xyz) — new fetch on filter change",
+        "Add pagination (?page=/?limit=) — fetching “more” data",
+        "Add a second endpoint the same page depends on (e.g. GET /links/tags) — two independent fetches on one page"
+      ]
+    },
+    {
+      title: "Optional stretch — deployment",
+      sub: "Put it on the internet once the app itself works.",
+      items: [
+        "Deploy frontend to Vercel",
+        "Wrap FastAPI for Lambda (e.g. Mangum) behind API Gateway, or a simpler host first",
+        "Point deployed frontend at deployed backend, fix CORS for the real domain"
+      ]
+    }
+  ];
+
+  const STORAGE_KEY = "fetch-roadmap-v1";
+
+  function loadState() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveState(state) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {}
+  }
+
+  function render() {
+    const state = loadState();
+    const container = document.getElementById("phases");
+    container.innerHTML = "";
+    let totalItems = 0;
+    let totalDone = 0;
+
+    PHASES.forEach((phase, pi) => {
+      const section = document.createElement("section");
+      section.className = "phase";
+
+      const doneInPhase = phase.items.filter((_, ii) => state[`${pi}-${ii}`]).length;
+      totalItems += phase.items.length;
+      totalDone += doneInPhase;
+
+      const head = document.createElement("div");
+      head.className = "phase-head";
+      head.innerHTML = `
+        <div class="phase-num">${pi}</div>
+        <div class="phase-title-wrap">
+          <div class="phase-title">${phase.title}</div>
+          <p class="phase-sub">${phase.sub}</p>
+        </div>
+        <div class="phase-count">${doneInPhase}/${phase.items.length}</div>
+      `;
+      section.appendChild(head);
+
+      const list = document.createElement("ul");
+      list.className = "items";
+
+      phase.items.forEach((text, ii) => {
+        const id = `${pi}-${ii}`;
+        const li = document.createElement("li");
+        li.className = "item" + (state[id] ? " checked" : "");
+        const checked = state[id] ? "checked" : "";
+        li.innerHTML = `
+          <input type="checkbox" id="chk-${id}" ${checked}>
+          <label for="chk-${id}">${text}</label>
+        `;
+        list.appendChild(li);
+      });
+
+      section.appendChild(list);
+
+      if (phase.checkpoint) {
+        const cp = document.createElement("div");
+        cp.className = "checkpoint";
+        cp.textContent = phase.checkpoint;
+        section.appendChild(cp);
+      }
+
+      container.appendChild(section);
+    });
+
+    document.getElementById("overall-count").textContent = `${totalDone} / ${totalItems}`;
+    const pct = totalItems ? Math.round((totalDone / totalItems) * 100) : 0;
+    document.getElementById("overall-bar").style.width = pct + "%";
+
+    container.querySelectorAll('input[type="checkbox"]').forEach((box) => {
+      box.addEventListener("change", () => {
+        const s = loadState();
+        s[box.id.replace("chk-", "")] = box.checked;
+        saveState(s);
+        render();
+      });
+    });
+  }
+
+  render();
+</script>
