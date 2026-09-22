@@ -6,6 +6,7 @@ import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [count2, setCount2] = useState(0)
 
   return (
     <>
@@ -24,9 +25,16 @@ function App() {
         <button
           type="button"
           className="counter"
-          onClick={() => setCount((count) => count + 1)}
+          onClick={() => setCount((count) => count +1)}
         >
           Count is {count}
+        </button>
+        <button
+          type="button"
+          className="counter"
+          onClick={() => setCount2((count2) => count2 - 1)}
+        >
+          Count 2 is {count2}
         </button>
       </section>
 
