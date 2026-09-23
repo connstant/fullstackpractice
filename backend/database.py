@@ -13,7 +13,11 @@ DATABASE_URL = os.environ["DATABASE_URL"]
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
 
-engine = create_engine(DATABASE_URL)
+# SQLite (the local test DB) only allows one thread per connection by default,
+# but FastAPI serves requests from a thread pool.
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 

@@ -2,6 +2,7 @@
 backend/venv/
 backend/__pycache__/
 backend/.env
+backend/test.db
 
 # Node
 frontend/node_modules/

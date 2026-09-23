@@ -1,0 +1,16 @@
+url,note,tags,is_read,created_at
+https://react.dev/learn,Official React tutorial,"react,learning",true,2026-09-23T16:38:39+00:00
+https://react.dev/reference/react/useEffect,useEffect reference,"react,hooks",false,2026-09-21T15:38:39+00:00
+https://react.dev/reference/react/useState,useState reference,"react,hooks",true,2026-09-19T14:38:39+00:00
+https://tanstack.com/query/latest,For Phase 3,"react,fetching",false,2026-09-17T13:38:39+00:00
+https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API,MDN fetch docs,"javascript,fetching",true,2026-09-15T12:38:39+00:00
+https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS,Read before the CORS experiment,"http,cors",false,2026-09-13T11:38:39+00:00
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Status,HTTP status codes,http,false,2026-09-11T10:38:39+00:00
+https://fastapi.tiangolo.com/tutorial/,FastAPI tutorial,"python,fastapi",true,2026-09-09T09:38:39+00:00
+https://fastapi.tiangolo.com/tutorial/cors/,,"python,fastapi,cors",false,2026-09-07T08:38:39+00:00
+https://docs.sqlalchemy.org/en/20/orm/quickstart.html,SQLAlchemy 2.0 ORM quickstart,"python,database",false,2026-09-05T07:38:39+00:00
+https://supabase.com/docs/guides/database/overview,Supabase Postgres docs,database,false,2026-09-03T06:38:39+00:00
+https://www.typescriptlang.org/docs/handbook/2/everyday-types.html,TS everyday types,typescript,true,2026-09-01T05:38:39+00:00
+https://vite.dev/guide/,,,false,2026-08-30T04:38:39+00:00
+https://vercel.com/docs,For the deployment stretch goal,deployment,false,2026-08-28T03:38:39+00:00
+https://github.com/Kludex/mangum,FastAPI on Lambda,"python,deployment",false,2026-08-26T02:38:39+00:00
