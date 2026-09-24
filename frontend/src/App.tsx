@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import './App.css'
 
 type Link = {
@@ -10,125 +11,113 @@ type Link = {
   is_read: boolean
 }
 
+type NewLink = {
+  url: string
+  note: string | null
+  tags: string | null
+}
+
 const API_URL = 'http://localhost:8000'
 
-function App() {
-  // ② STATE: your memory boxes
-  const [links, setLinks] = useState<Link[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+// ① API FUNCTIONS: plain fetch(), same as Phase 2.
+//    TanStack Query doesn't make requests for you. It calls these functions
+//    and manages the result (loading, error, caching, refetching).
+//    Each one throws on a non-2xx response so TanStack Query sees it as an error.
 
-  // Form inputs: one box per field, so React always knows what's typed
+async function fetchLinks(): Promise<Link[]> {
+  const res = await fetch(`${API_URL}/links`)
+  if (!res.ok) throw new Error(`Server said ${res.status}`)
+  return res.json()
+}
+
+async function createLink(newLink: NewLink): Promise<Link> {
+  const res = await fetch(`${API_URL}/links`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newLink),
+  })
+  if (!res.ok) throw new Error(`Create failed: ${res.status}`)
+  return res.json()
+}
+
+async function deleteLink(id: number): Promise<void> {
+  const res = await fetch(`${API_URL}/links/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error(`Delete failed: ${res.status}`)
+  // 204 = no body, so nothing to return
+}
+
+async function updateLink(link: Link): Promise<Link> {
+  const res = await fetch(`${API_URL}/links/${link.id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    // PATCH = only send the field that changed
+    body: JSON.stringify({ is_read: !link.is_read }),
+  })
+  if (!res.ok) throw new Error(`Update failed: ${res.status}`)
+  return res.json()
+}
+
+function App() {
+  // Gives us access to the cache created in main.tsx
+  const queryClient = useQueryClient()
+
+  // Form inputs are still local UI state, so they stay as useState
   const [url, setUrl] = useState('')
   const [note, setNote] = useState('')
   const [tags, setTags] = useState('')
 
-  // ③ EFFECT: GET /links when the page first loads
-  useEffect(() => {
-    // useEffect can't be async itself, so we make an async helper and call it
-    async function loadLinks() {
-      try {
-        // 1. Ask the server. `await` = pause here until it answers.
-        const res = await fetch(`${API_URL}/links`)
+  // ② QUERY: replaces useState(links) + useState(loading) + useState(error)
+  //    + the whole useEffect. The key ['links'] is the name of this data in
+  //    the cache; anything that says "['links'] is stale" makes it refetch.
+  const linksQuery = useQuery({
+    queryKey: ['links'],
+    queryFn: fetchLinks,
+  })
 
-        // 2. fetch only throws if the network fails. A 404/500 still
-        //    "succeeds", so we check res.ok ourselves.
-        if (!res.ok) {
-          throw new Error(`Server said ${res.status}`)
-        }
+  // ③ MUTATIONS: one per write. onSuccess invalidates ['links'], which tells
+  //    TanStack Query "the list is out of date, fetch it again". We no longer
+  //    splice the list by hand with setLinks([...]).
+  const invalidateLinks = () =>
+    queryClient.invalidateQueries({ queryKey: ['links'] })
 
-        // 3. The body arrives as text. Turn it into JS objects.
-        const data: Link[] = await res.json()
-        console.log('links from API:', data)
-
-        // 4. Put it in the memory box → React redraws with the links
-        setLinks(data)
-      } catch (err) {
-        // Anything that went wrong above lands here
-        setError(err instanceof Error ? err.message : 'Something went wrong')
-      } finally {
-        // Runs whether it worked or failed: we're done waiting
-        setLoading(false)
-      }
-    }
-
-    loadLinks()
-  }, []) // [] = only run once, when the page first appears
-
-  // ④ HANDLERS: run when the user clicks, so they're plain functions,
-  //    NOT inside useEffect
-
-  // POST: create a new link
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault() // stop the browser's default "reload the page" on submit
-    setError(null)
-
-    try {
-      const res = await fetch(`${API_URL}/links`, {
-        method: 'POST',
-        // Tell the server "the body is JSON"
-        headers: { 'Content-Type': 'application/json' },
-        // fetch sends text, so turn the object into a JSON string.
-        // `|| null` sends null instead of "" for empty optional fields.
-        body: JSON.stringify({ url, note: note || null, tags: tags || null }),
-      })
-      if (!res.ok) throw new Error(`Create failed: ${res.status}`)
-
-      // The server sends back the saved link (with its new id + created_at)
-      const created: Link = await res.json()
-
-      // New list = new link first, then all the old ones
-      setLinks([created, ...links])
-
-      // Clear the form
+  const createMutation = useMutation({
+    mutationFn: createLink,
+    onSuccess: () => {
+      invalidateLinks()
+      // Clear the form only once the server has saved it
       setUrl('')
       setNote('')
       setTags('')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
-    }
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteLink,
+    onSuccess: invalidateLinks,
+  })
+
+  const toggleReadMutation = useMutation({
+    mutationFn: updateLink,
+    onSuccess: invalidateLinks,
+  })
+
+  function handleCreate(e: React.FormEvent) {
+    e.preventDefault() // stop the browser's default "reload the page" on submit
+    // `|| null` sends null instead of "" for empty optional fields
+    createMutation.mutate({ url, note: note || null, tags: tags || null })
   }
 
-  // DELETE: remove a link
-  async function handleDelete(id: number) {
-    setError(null)
-    try {
-      const res = await fetch(`${API_URL}/links/${id}`, { method: 'DELETE' })
-      if (!res.ok) throw new Error(`Delete failed: ${res.status}`)
+  // Whichever write failed most recently, if any
+  const mutationError =
+    createMutation.error ?? deleteMutation.error ?? toggleReadMutation.error
 
-      // 204 = no body, so nothing to read. Keep every link except this one.
-      setLinks(links.filter((link) => link.id !== id))
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
-    }
-  }
-
-  // PATCH: flip is_read on one link
-  async function handleToggleRead(link: Link) {
-    setError(null)
-    try {
-      const res = await fetch(`${API_URL}/links/${link.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        // PATCH = only send the field that changed
-        body: JSON.stringify({ is_read: !link.is_read }),
-      })
-      if (!res.ok) throw new Error(`Update failed: ${res.status}`)
-
-      const updated: Link = await res.json()
-
-      // Swap in the updated link, leave the rest alone
-      setLinks(links.map((l) => (l.id === updated.id ? updated : l)))
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
-    }
-  }
+  const links = linksQuery.data ?? []
 
   return (
     <main>
       <h1>Link Saver</h1>
 
-      {/* ⑤ FORM: each input shows its state box, and typing updates the box */}
+      {/* ④ FORM: same as before, but the button knows when a save is in flight */}
       <form onSubmit={handleCreate}>
         <input
           type="url"
@@ -147,30 +136,33 @@ function App() {
           value={tags}
           onChange={(e) => setTags(e.target.value)}
         />
-        <button type="submit">Save link</button>
+        <button type="submit" disabled={createMutation.isPending}>
+          {createMutation.isPending ? 'Saving…' : 'Save link'}
+        </button>
       </form>
 
-      {/* ⑥ LOADING / ERROR messages */}
-      {/* `condition && <thing>` = only show <thing> if condition is true */}
-      {loading && <p>Loading…</p>}
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+      {/* ⑤ LOADING / ERROR: these flags come from useQuery/useMutation now */}
+      {linksQuery.isPending && <p>Loading…</p>}
+      {linksQuery.isError && (
+        <p style={{ color: 'red' }}>Error: {linksQuery.error.message}</p>
+      )}
+      {mutationError && (
+        <p style={{ color: 'red' }}>Error: {mutationError.message}</p>
+      )}
 
-      {/* Done loading, no error, but nothing saved yet */}
-      {!loading && !error && links.length === 0 && <p>No links yet.</p>}
+      {linksQuery.isSuccess && links.length === 0 && <p>No links yet.</p>}
 
-      {/* ⑦ LIST: turn each link object into a <li> */}
+      {/* ⑥ LIST: unchanged, but the buttons call mutate() */}
       <ul>
         {links.map((link) => (
-          // `key` lets React tell rows apart when the list changes
           <li key={link.id}>
             <a href={link.url} target="_blank">{link.url}</a>
             {link.note && <span> — {link.note}</span>}
             {link.tags && <small> [{link.tags}]</small>}{' '}
-            {/* Arrow function so the handler runs on click, not on render */}
-            <button onClick={() => handleToggleRead(link)}>
+            <button onClick={() => toggleReadMutation.mutate(link)}>
               {link.is_read ? 'Mark unread' : 'Mark read'}
             </button>{' '}
-            <button onClick={() => handleDelete(link.id)}>Delete</button>
+            <button onClick={() => deleteMutation.mutate(link.id)}>Delete</button>
           </li>
         ))}
       </ul>
